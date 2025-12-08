@@ -1,0 +1,42 @@
+KEY Q
+REFRESH
+=== [15705] LEVEL INFO ===
+Dimensions: 30 x 30
+Tempo: 10
+Pacman file: 
+Monster files (2):
+  - ./test/2.m
+  - ./test/3.m
+
+=== BOARD ===
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+WP  M                        W
+W                            W
+W     W     W     W     W    W
+W W W W W W W W W W W W W W WW
+W                            W
+W     W     W     W     W    W
+W                            W
+W W W W W W W W W W W W W W WW
+W     W     W     W     W    W
+W  M                         W
+W                            W
+W W W W W W W W W W W W W W WW
+W                            W
+W                            W
+W     W     W     W     W    W
+W W W W W W W W W W W W W W WW
+W                            W
+W     W     W     W     W    W
+W                            W
+W W W W W W W W W W W W W W WW
+W     W     W     W     W    W
+W                            W
+W                            W
+W W W W W W W W W W W W W W WW
+W                            W
+W                            W
+W     W     W     W     W    W
+W W W W W W W W W W W W W W WW
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+==================
