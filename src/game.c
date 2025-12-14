@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 
 #define CONTINUE_PLAY 0
 #define NEXT_LEVEL 1
@@ -30,13 +31,17 @@ int play_board(board_t *game_board)
 {
     pacman_t *pacman = &game_board->pacmans[0];
     command_t *play;
+    command_t c;
     if (pacman->n_moves == 0)
     { // if is user input
-        command_t c;
         c.command = get_input();
 
         if (c.command == '\0')
+        {
+            if (pacman->alive == 0)
+                return QUIT_GAME;
             return CONTINUE_PLAY;
+        }
 
         c.turns = 1;
         play = &c;
@@ -57,7 +62,7 @@ int play_board(board_t *game_board)
 
     if (play->command == 'G')
     {
-        
+
         return CREATE_BACKUP;
     }
 
@@ -65,22 +70,25 @@ int play_board(board_t *game_board)
     if (result == REACHED_PORTAL)
     {
         // Next level
+        for (int i = 0; i < game_board->n_pacmans; i++)
+            kill_pacman(game_board, i);
         return NEXT_LEVEL;
     }
 
     if (result == DEAD_PACMAN)
     {
-        if (game_board->saved == 1) return LOAD_BACKUP;
+        if (game_board->saved == 1)
+            return LOAD_BACKUP;
         return QUIT_GAME;
     }
 
-    for (int i = 0; i < game_board->n_ghosts; i++)
-    {
-        ghost_t *ghost = &game_board->ghosts[i];
-        // avoid buffer overflow wrapping around with modulo of n_moves
-        // this ensures that we always access a valid move for the ghost
-        move_ghost(game_board, i, &ghost->moves[ghost->current_move % ghost->n_moves]);
-    }
+    // for (int i = 0; i < game_board->n_ghosts; i++)
+    //{
+    // ghost_t *ghost = &game_board->ghosts[i];
+    //  avoid buffer overflow wrapping around with modulo of n_moves
+    //  this ensures that we always access a valid move for the ghost
+    // move_ghost(game_board, i, &ghost->moves[ghost->current_move % ghost->n_moves]);
+    //}
 
     if (!game_board->pacmans[0].alive)
     {
@@ -90,15 +98,25 @@ int play_board(board_t *game_board)
     return CONTINUE_PLAY;
 }
 
-void saves_progress(board_t *board) {
-    if (board->saved == 0){
-            board->saved = 1;
-            pid_t pid = fork();
-            if (pid > 0) {
-                waitpid(pid, NULL, 0);
-                board->saved = 0;
-            }
-        }
+int saves_progress(board_t *board)
+{
+    int status;
+
+    pid_t pid = fork();
+    board->pid = pid;
+    if (pid > 0)
+    {
+        waitpid(pid, &status, 0);
+        board->saved = 0;
+        if (WIFEXITED(status))
+        {
+            int code = WEXITSTATUS(status);
+            if (code == QUIT_GAME)
+                return QUIT_GAME;
+        } 
+    }
+
+    return 0;
 }
 
 int main(int argc, char **argv)
@@ -117,15 +135,18 @@ int main(int argc, char **argv)
     terminal_init();
 
     int accumulated_points = 0;
+
     bool end_game = false;
+
     board_t game_board;
     char lvl_filename[MAX_FILENAME];
 
     DIR *dir = opendir(argv[1]);
     struct dirent *dir_info;
     game_board.saved = 0;
+    game_board.pid = (pid_t)1;
 
-    
+    pthread_t tid;
 
     while ((dir_info = readdir(dir)) != NULL)
     {
@@ -151,7 +172,10 @@ int main(int argc, char **argv)
             file_parser(open(lvl_filename, O_RDONLY), &game_board, accumulated_points, &handler, argv[1]);
         }
         draw_board(&game_board, DRAW_MENU);
+
         refresh_screen();
+
+        pthread_create(&tid, NULL, init_ghosts, &game_board);
 
         while (true)
         {
@@ -166,24 +190,47 @@ int main(int argc, char **argv)
 
             if (result == QUIT_GAME)
             {
+                if (game_board.saved == 1)
+                    exit(QUIT_GAME);
                 screen_refresh(&game_board, DRAW_GAME_OVER);
                 sleep_ms(game_board.tempo);
                 end_game = true;
                 break;
             }
 
-            if (result == CREATE_BACKUP) {
-                saves_progress(&game_board);
+            if (result == CREATE_BACKUP)
+            {
+                int status;
+                if (game_board.saved == 0)
+                {
+                    game_board.saved = 1;
+                    pthread_join(tid, NULL); 
+                    status = saves_progress(&game_board);
+                    if (game_board.pid == 0) {
+                        pthread_create(&tid, NULL, init_ghosts, &game_board);
+                    }
+                }
+                sleep_ms(game_board.tempo);
+                if (status == QUIT_GAME)
+                {
+                    screen_refresh(&game_board, DRAW_GAME_OVER);
+                    sleep_ms(game_board.tempo);
+                    end_game = true;
+                    break;
+                }
+                if (game_board.pid > 0) pthread_create(&tid, NULL, init_ghosts, &game_board);
             }
 
-            if (result == LOAD_BACKUP) {
-                exit(EXIT_FAILURE);
+            if (result == LOAD_BACKUP)
+            {
+                exit(DEAD_PACMAN);
             }
 
             screen_refresh(&game_board, DRAW_MENU);
 
             accumulated_points = game_board.pacmans[0].points;
         }
+        pthread_join(tid, NULL);
         print_board(&game_board);
         unload_level(&game_board);
     }

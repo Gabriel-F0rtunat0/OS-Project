@@ -4,11 +4,9 @@
 #include "board.h"
 #include <ncurses.h>
 
-
 #define DRAW_GAME_OVER 0
 #define DRAW_WIN 1
 #define DRAW_MENU 2
-
 
 /*
 Potential Structures for ncurses

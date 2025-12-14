@@ -107,8 +107,10 @@ int move_pacman(board_t *board, int pacman_index, command_t *command)
         return INVALID_MOVE;
     }
 
+
     int new_index = get_board_index(board, new_x, new_y);
     int old_index = get_board_index(board, pac->pos_x, pac->pos_y);
+
     char target_content = board->board[new_index].content;
 
     if (board->board[new_index].has_portal)
@@ -142,7 +144,6 @@ int move_pacman(board_t *board, int pacman_index, command_t *command)
     pac->pos_x = new_x;
     pac->pos_y = new_y;
     board->board[new_index].content = 'P';
-
     return VALID_MOVE;
 }
 
@@ -158,7 +159,9 @@ static int move_ghost_charged_direction(board_t *board, ghost_t *ghost, char dir
     {
     case 'W': // Up
         if (y == 0)
+        {
             return INVALID_MOVE;
+        }
         *new_y = 0; // In case there is no colision
         for (int i = y - 1; i >= 0; i--)
         {
@@ -178,7 +181,9 @@ static int move_ghost_charged_direction(board_t *board, ghost_t *ghost, char dir
 
     case 'S': // Down
         if (y == board->height - 1)
+        {
             return INVALID_MOVE;
+        }
         *new_y = board->height - 1; // In case there is no colision
         for (int i = y + 1; i < board->height; i++)
         {
@@ -198,7 +203,9 @@ static int move_ghost_charged_direction(board_t *board, ghost_t *ghost, char dir
 
     case 'A': // Left
         if (x == 0)
+        {
             return INVALID_MOVE;
+        }
         *new_x = 0; // In case there is no colision
         for (int j = x - 1; j >= 0; j--)
         {
@@ -218,7 +225,9 @@ static int move_ghost_charged_direction(board_t *board, ghost_t *ghost, char dir
 
     case 'D': // Right
         if (x == board->width - 1)
+        {
             return INVALID_MOVE;
+        }
         *new_x = board->width - 1; // In case there is no colision
         for (int j = x + 1; j < board->width; j++)
         {
@@ -251,7 +260,7 @@ int move_ghost_charged(board_t *board, int ghost_index, char direction)
     int new_y = y;
 
     ghost->charged = 0; // uncharge
-    int result = move_ghost_charged_direction(board, ghost, direction, &new_x, &new_y);
+    int result = move_ghost_charged_direction(board, ghost, direction, &new_x, &new_y); // initial positional still locked
     if (result == INVALID_MOVE)
     {
         debug("DEFAULT CHARGED MOVE - direction = %c\n", direction);
@@ -269,6 +278,7 @@ int move_ghost_charged(board_t *board, int ghost_index, char direction)
     ghost->pos_y = new_y;
     // Update board - set new position
     board->board[new_index].content = 'M';
+
     return result;
 }
 
@@ -278,10 +288,12 @@ int move_ghost(board_t *board, int ghost_index, command_t *command)
     int new_x = ghost->pos_x;
     int new_y = ghost->pos_y;
 
+    pthread_rwlock_wrlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
     // check passo
     if (ghost->waiting > 0)
     {
         ghost->waiting -= 1;
+        pthread_rwlock_unlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
         return VALID_MOVE;
     }
     ghost->waiting = ghost->passo;
@@ -312,6 +324,7 @@ int move_ghost(board_t *board, int ghost_index, command_t *command)
     case 'C': // Charge
         ghost->current_move += 1;
         ghost->charged = 1;
+        pthread_rwlock_unlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
         return VALID_MOVE;
     case 'T': // Wait
         if (command->turns_left == 1)
@@ -321,19 +334,26 @@ int move_ghost(board_t *board, int ghost_index, command_t *command)
         }
         else
             command->turns_left -= 1;
+        pthread_rwlock_unlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
         return VALID_MOVE;
     default:
+        pthread_rwlock_unlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
         return INVALID_MOVE; // Invalid direction
     }
+
+    pthread_rwlock_wrlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
 
     // Logic for the WASD movement
     ghost->current_move++;
     if (ghost->charged)
+    {
         return move_ghost_charged(board, ghost_index, direction);
+    }
 
     // Check boundaries
     if (!is_valid_position(board, new_x, new_y))
     {
+        pthread_rwlock_unlock(&board->board[get_board_index(board, new_x, new_y)].rwlock);
         return INVALID_MOVE;
     }
 
@@ -345,6 +365,8 @@ int move_ghost(board_t *board, int ghost_index, command_t *command)
     // Check for walls and ghosts
     if (target_content == 'W' || target_content == 'M')
     {
+        pthread_rwlock_unlock(&board->board[old_index].rwlock);
+        pthread_rwlock_unlock(&board->board[new_index].rwlock);
         return INVALID_MOVE;
     }
 
@@ -364,7 +386,28 @@ int move_ghost(board_t *board, int ghost_index, command_t *command)
 
     // Update board - set new position
     board->board[new_index].content = 'M';
+    pthread_rwlock_unlock(&board->board[old_index].rwlock);
+    pthread_rwlock_unlock(&board->board[new_index].rwlock);
     return result;
+}
+
+void *concurrent_move_ghost(void *arguments) {
+    thread_ghost_move_args_t *args = (thread_ghost_move_args_t*)arguments;
+    board_t *board = args->board;
+    int index = args->index;
+    ghost_t *ghost = &board->ghosts[index];
+    command_t *c;
+
+    for (;;) {
+        c = &ghost->moves[ghost->current_move % ghost->n_moves];
+        move_ghost(board, index, c);
+        sleep_ms(board->tempo);
+        for (int i = 0; i < board->n_pacmans; i++) {
+            if (board->pacmans[i].alive == 0 || (board->saved == 1 && board->pid > 0)) {
+                return NULL;
+            } 
+        }
+    }
 }
 
 void kill_pacman(board_t *board, int pacman_index)
@@ -427,6 +470,25 @@ int load_ghost(board_t *board)
     board->ghosts[1].moves[0].turns = 1;
 
     return 0;
+}
+
+void *init_ghosts(void *game_board)
+{
+    board_t *board = (board_t*)game_board;
+    thread_ghost_move_args_t args[board->n_ghosts];
+
+    pthread_t tid[board->n_ghosts];
+
+    for (int i = 0; i < board->n_ghosts; i++) {
+        args[i] = (thread_ghost_move_args_t){.board = board, .index = i};
+        pthread_create(&tid[i], NULL, concurrent_move_ghost, &args[i]);
+    }
+
+    for (int i = 0; i < board->n_ghosts; i++) {
+        pthread_join(tid[i], NULL);
+    }
+
+    return NULL;
 }
 
 int load_level(board_t *board, int points)

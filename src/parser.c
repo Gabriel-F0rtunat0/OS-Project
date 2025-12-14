@@ -164,15 +164,23 @@ static void handle_board_row(const char *line, board_t *board, board_pos_t **ite
         switch (line[i])
         {
         case 'X':
-            pos = (board_pos_t){'W', 0, 0};
+            pos.content = 'W';
+            pos.has_dot = 0;
+            pos.has_portal = 0;
             break;
         case 'o':
-            pos = (board_pos_t){' ', 1, 0};
+            pos.content = ' ';
+            pos.has_dot = 1;
+            pos.has_portal = 0;
             break;
         case '@':
-            pos = (board_pos_t){' ', 0, 1};
+            pos.content = ' ';
+            pos.has_dot = 0;
+            pos.has_portal = 1;
             break;
         }
+
+        pthread_rwlock_init(&pos.rwlock, NULL);
 
         if ((**iter_board).content != PACMAN && (**iter_board).content != GHOST)
             **iter_board = pos; // Associates the current position to a board_pos_t structure
@@ -205,6 +213,7 @@ static void handle_POS(const char *line, board_t *board, handler_t *handler)
     pos->content = handler->type;
     pos->has_dot = 1;
     pos->has_portal = 0;
+    pthread_rwlock_init(&pos->rwlock, NULL);
 }
 
 static void handle_PASSO(const char *line, handler_t *handler)
@@ -264,12 +273,11 @@ void file_parser(int fd, board_t *board, int points, handler_t *handler, char *d
     board_pos_t *iter_board = NULL; // Instanciate and initializes a pointer to iterate every position in the board
 
     if (handler->type == LEVEL)
-    {                                                                        // Initialize the first level or reset the following levels
-        board->level++;                                                      // Adds one level
+    {                                                                 // Initialize the first level or reset the following levels
+        board->level++;                                               // Adds one level
         snprintf(board->level_name, BUFFER_SIZE, "%d", board->level); // Changes the level name
 
         board->width = board->height = 0;
-        board->board_pos = 0;
         board->tempo = 0;
         board->n_pacmans = 0;
 
@@ -319,5 +327,6 @@ void file_parser(int fd, board_t *board, int points, handler_t *handler, char *d
     {
         board->pacmans = malloc(sizeof(pacman_t));
         load_pacman(board, points);
+        board->n_pacmans = 1;
     }
 }
