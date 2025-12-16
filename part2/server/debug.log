@@ -1,0 +1,325 @@
+DIM = 30 x 30
+TEMPO = 10
+MON file: ./test//2.m
+MON file: ./test//3.m
+Line: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Line: XooooooooooooooooooooooooooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XooooooooooooooooooooooooooooX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XooooooooooooooooooooooooooooX
+Line: Xoooooooooooooooooooooooo@oooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XooooooooooooooooooooooooooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XooooooooooooooooooooooooooooX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XooooooooooooooooooooooooooooX
+Line: XooooooooooooooooooooooooooooX
+Line: XoooooXoooooXoooooXoooooXooooX
+Line: XoXoXoXoXoXoXoXoXoXoXoXoXoXoXX
+Line: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Ghost passo: 1
+Ghost Pos = 10 x 5
+Ghost passo: 1
+Ghost Pos = 5 x 10
+Creating threads
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+KEY S
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+KEY D
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+KEY D
+REFRESH
+REFRESH
+REFRESH
+KEY D
+REFRESH
+REFRESH
+KEY D
+REFRESH
+REFRESH
+REFRESH
+KEY D
+REFRESH
+REFRESH
+REFRESH
+KEY D
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+Killing 0 pacman
+
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+REFRESH
+KEY W
+REFRESH
+=== [27976] LEVEL INFO ===
+Dimensions: 30 x 30
+Tempo: 10
+Pacman file: 
+Monster files (2):
+  - ./test//2.m
+  - ./test//3.m
+
+=== BOARD ===
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+W      M                     W
+W                            W
+W     W     W     W     W    W
+W W W W W W W W W W W W W W WW
+W                            W
+W     W     W     W     W    W
+W                            W
+W W W W W W W W W W W W W W WW
+W     W     W     W     W    W
+W                            W
+W                            W
+W W W W W W W W W W W W W W WW
+W                            W
+W                            W
+W     W     W     W     W    W
+W W WMW W W W W W W W W W W WW
+W                            W
+W     W     W     W     W    W
+W                            W
+W W W W W W W W W W W W W W WW
+W     W     W     W     W    W
+W                            W
+W                            W
+W W W W W W W W W W W W W W WW
+W                            W
+W                            W
+W     W     W     W     W    W
+W W W W W W W W W W W W W W WW
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+==================
